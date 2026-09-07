@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NO FORM — Client Experience</title>
+<style>
+  :root{
+    --ivory:#F5F2E9;
+    --charcoal:#1E201F;
+    --hardwood:#78675C;
+    --sage:#7A8878;
+    --burgundy:#622230;
+    --line: rgba(30,32,31,0.14);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--ivory);
+    color:var(--charcoal);
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:640px; margin:0 auto; padding:0 24px 120px;}
+
+  /* progress thread */
+  .thread-track{
+    position:sticky; top:0; z-index:20;
+    height:3px; width:100%;
+    background: var(--ivory);
+    border-bottom:1px solid var(--line);
+  }
+  .thread-fill{
+    height:100%; width:0%;
+    background:var(--burgundy);
+    transition:width .4s ease;
+  }
+
+  header.hero{
+    padding:64px 0 40px;
+    text-align:center;
+    border-bottom:1px solid var(--line);
+    margin-bottom:8px;
+  }
+  .wordmark{
+    font-family: Baskerville, "Times New Roman", serif;
+    font-size:15px;
+    letter-spacing:0.42em;
+    text-transform:uppercase;
+    color:var(--charcoal);
+  }
+  .hero h1{
+    font-family: Baskerville, "Times New Roman", serif;
+    font-weight:400;
+    font-size:34px;
+    line-height:1.25;
+    margin-top:22px;
+    letter-spacing:0.01em;
+  }
+  .hero p{
+    margin-top:14px;
+    font-size:14.5px;
+    line-height:1.6;
+    color:var(--hardwood);
+    max-width:420px;
+    margin-left:auto; margin-right:auto;
+  }
+
+  section.block{ padding:52px 0; border-bottom:1px solid var(--line); }
+  section.block:last-of-type{ border-bottom:none; }
+
+  .eyebrow{
+    display:flex; align-items:baseline; gap:12px;
+    margin-bottom:8px;
+  }
+  .eyebrow .num{
+    font-family: Baskerville, serif;
+    font-size:13px; color:var(--burgundy); letter-spacing:0.08em;
+  }
+  .eyebrow .label{
+    font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--hardwood);
+  }
+  .block h2{
+    font-family: Baskerville, serif;
+    font-weight:400;
+    font-size:24px;
+    margin-bottom:36px;
+  }
+
+  .q{ margin-bottom:34px; }
+  .q:last-child{ margin-bottom:0; }
+  .q .qlabel{
+    font-size:15px;
+    line-height:1.45;
+    margin-bottom:14px;
+    font-weight:500;
+  }
+
+  /* pill option groups */
+  .options{ display:flex; flex-wrap:wrap; gap:10px; }
+  .opt{
+    appearance:none; border:1px solid var(--hardwood);
+    background:transparent; color:var(--charcoal);
+    font-size:13.5px; font-family:inherit;
+    padding:11px 18px; border-radius:999px;
+    cursor:pointer; transition: all .18s ease;
+    line-height:1.2;
+  }
+  .opt:hover{ border-color:var(--charcoal); }
+  .opt:focus-visible{ outline:2px solid var(--burgundy); outline-offset:2px; }
+  .opt.selected{
+    background:var(--charcoal); border-color:var(--charcoal); color:var(--ivory);
+  }
+
+  /* star rating */
+  .stars{ display:flex; gap:8px; }
+  .star{
+    width:34px; height:34px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    background:none; border:none; padding:0;
+  }
+  .star:focus-visible{ outline:2px solid var(--burgundy); outline-offset:3px; border-radius:4px; }
+  .star svg{ width:28px; height:28px; transition: transform .12s ease; }
+  .star:hover svg{ transform: scale(1.08); }
+  .star svg path{ fill:none; stroke:var(--hardwood); stroke-width:1.4; transition: fill .15s ease, stroke .15s ease; }
+  .star.filled svg path{ fill:var(--burgundy); stroke:var(--burgundy); }
+
+  .stitch{
+    display:flex; align-items:center; gap:6px; margin:52px 0;
+    color:var(--sage);
+  }
+  .stitch span{ width:6px; height:1px; background:var(--hardwood); opacity:.5; }
+
+  /* submit */
+  .submit-row{ padding-top:16px; text-align:center; }
+  .submit-btn{
+    appearance:none; border:1px solid var(--charcoal);
+    background:var(--charcoal); color:var(--ivory);
+    font-family:inherit; font-size:13px; letter-spacing:0.12em; text-transform:uppercase;
+    padding:16px 44px; border-radius:2px; cursor:pointer;
+    transition: opacity .2s ease;
+  }
+  .submit-btn:disabled{ opacity:.35; cursor:not-allowed; }
+  .submit-btn:not(:disabled):hover{ opacity:.85; }
+  .hint{ margin-top:14px; font-size:12px; color:var(--hardwood); }
+
+  /* thank you overlay */
+  .overlay{
+    position:fixed; inset:0; background:var(--ivory);
+    display:none; align-items:center; justify-content:center; text-align:center;
+    padding:40px; z-index:50;
+  }
+  .overlay.show{ display:flex; }
+  .overlay-inner{ max-width:420px; }
+  .overlay .mark{ font-family:Baskerville, serif; letter-spacing:0.4em; font-size:13px; text-transform:uppercase; color:var(--burgundy); }
+  .overlay h2{ font-family:Baskerville, serif; font-weight:400; font-size:28px; margin:20px 0 14px; }
+  .overlay p{ font-size:14.5px; line-height:1.7; color:var(--hardwood); }
+
+  /* founder view */
+  .founder-link{
+    display:block; text-align:center; margin-top:28px;
+    font-size:11px; color:var(--line); letter-spacing:0.08em; text-decoration:none;
+  }
+  .founder-panel{
+    display:none; margin-top:20px; border:1px solid var(--line); padding:18px; border-radius:4px; background:rgba(122,136,120,0.06);
+  }
+  .founder-panel.show{ display:block; }
+  .founder-panel h3{ font-family:Baskerville, serif; font-weight:400; font-size:16px; margin-bottom:10px; }
+  .resp-item{ font-size:12px; padding:10px 0; border-top:1px solid var(--line); }
+  .resp-item:first-child{ border-top:none; }
+  .resp-item b{ color:var(--burgundy); }
+
+  @media (max-width:480px){
+    .hero h1{ font-size:27px; }
+    .wrap{ padding:0 18px 100px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="thread-track"><div class="thread-fill" id="threadFill"></div></div>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="wordmark">NO FORM</div>
+    <h1>Tell us how your piece arrived.</h1>
+    <p>A few taps — from delivery to unpacking to the finish itself. No typing needed. This helps us hold every future piece to the same standard.</p>
+  </header>
+
+  <section class="block" id="sec-delivery">
+    <div class="eyebrow"><span class="num">01</span><span class="label">Delivery</span></div>
+    <h2>Getting it to your door</h2>
+
+    <div class="q" data-q="delivery_timing">
+      <div class="qlabel">How was the delivery timing?</div>
+      <div class="options">
+        <button class="opt" data-v="Early">Early</button>
+        <button class="opt" data-v="On time">On time</button>
+        <button class="opt" data-v="Slightly delayed">Slightly delayed</button>
+        <button class="opt" data-v="Significantly delayed">Significantly delayed</button>
+      </div>
+    </div>
+
+    <div class="q" data-q="delivery_team">
+      <div class="qlabel">How would you rate the delivery team's professionalism?</div>
+      <div class="stars" data-stars></div>
+    </div>
+
+    <div class="q" data-q="delivery_condition">
+      <div class="qlabel">Did the outer packaging arrive intact?</div>
+      <div class="options">
+        <button class="opt" data-v="Perfect condition">Perfect condition</button>
+        <button class="opt" data-v="Minor wear">Minor wear</button>
+        <button class="opt" data-v="Visibly damaged">Visibly damaged</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="sec-unpacking">
+    <div class="eyebrow"><span class="num">02</span><span class="label">Unpacking</span></div>
+    <h2>The first reveal</h2>
+
+    <div class="q" data-q="unpack_ease">
+      <div class="qlabel">How easy was it to unpack the piece?</div>
+      <div class="options">
+        <button class="opt" data-v="Effortless">Effortless</button>
+        <button class="opt" data-v="Straightforward">Straightforward</button>
+        <button class="opt" data-v="A bit tricky">A bit tricky</button>
+        <button class="opt" data-v="Difficult">Difficult</button>
+      </div>
+    </div>
+
+    <div class="q" data-q="unpack_presentation">
+      <div class="qlabel">Rate the presentation of the packaging itself.</div>
+      <div class="stars" data-stars></div>
+    </div>
+
+    <div class="q" data-q="unpack_docs">
+      <div class="qlabel">Did the included documents (Certificate of Authenticity, Care Guide) meet your expectations?</div>
+      <div class="options">
+        <button class="opt" data-v="Exceeded expectations">Exceeded expectations</button>
+        <button class="opt" data-v="Met expectations">Met expectations</button>
+        <button class="opt" data-v="Below expectations">Below expectations</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="sec-finish">
+    <div class="eyebrow"><span class="num">03</span><span class="label">The Piece</span></div>
+    <h2>Craftsmanship &amp; finish</h2>
+
+    <div class="q" data-q="finish_quality">
+      <div class="qlabel">Rate the quality of the finish.</div>
+      <div class="stars" data-stars></div>
+    </div>
+
+    <div class="q" data-q="finish_expectation">
+      <div class="qlabel">Does the piece match what you expected from the photos and description?</div>
+      <div class="options">
+        <button class="opt" data-v="Exceeded expectations">Exceeded expectations</button>
+        <button class="opt" data-v="Matched expectations">Matched expectations</button>
+        <button class="opt" data-v="Fell short">Fell short</button>
+      </div>
+    </div>
+
+    <div class="q" data-q="finish_craftsmanship">
+      <div class="qlabel">How would you describe the overall craftsmanship?</div>
+      <div class="options">
+        <button class="opt" data-v="Exceptional">Exceptional</button>
+        <button class="opt" data-v="Very good">Very good</button>
+        <button class="opt" data-v="Good">Good</button>
+        <button class="opt" data-v="Needs improvement">Needs improvement</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="sec-overall">
+    <div class="eyebrow"><span class="num">04</span><span class="label">Overall</span></div>
+    <h2>Your experience, in full</h2>
+
+    <div class="q" data-q="overall_rating">
+      <div class="qlabel">Overall rating of your NO FORM experience.</div>
+      <div class="stars" data-stars data-big="1"></div>
+    </div>
+
+    <div class="q" data-q="repurchase">
+      <div class="qlabel">How likely are you to purchase from NO FORM again?</div>
+      <div class="options">
+        <button class="opt" data-v="Very likely">Very likely</button>
+        <button class="opt" data-v="Likely">Likely</button>
+        <button class="opt" data-v="Unsure">Unsure</button>
+        <button class="opt" data-v="Unlikely">Unlikely</button>
+      </div>
+    </div>
+
+    <div class="q" data-q="recommend">
+      <div class="qlabel">How likely are you to recommend NO FORM to a friend?</div>
+      <div class="options">
+        <button class="opt" data-v="Very likely">Very likely</button>
+        <button class="opt" data-v="Likely">Likely</button>
+        <button class="opt" data-v="Unsure">Unsure</button>
+        <button class="opt" data-v="Unlikely">Unlikely</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="submit-row">
+    <button class="submit-btn" id="submitBtn" disabled>Submit feedback</button>
+    <div class="hint" id="hintText">3 of 11 answered</div>
+  </div>
+
+  <a href="#" class="founder-link" id="founderLink">·</a>
+  <div class="founder-panel" id="founderPanel">
+    <h3>Responses</h3>
+    <div id="respList" style="font-size:12px;color:var(--hardwood);">Loading…</div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlay-inner">
+    <div class="mark">NO FORM</div>
+    <h2>Thank you.</h2>
+    <p>Your feedback has been recorded. Every note shapes how the next piece leaves our workshop.</p>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {id:'delivery_timing', type:'choice'},
+  {id:'delivery_team', type:'stars'},
+  {id:'delivery_condition', type:'choice'},
+  {id:'unpack_ease', type:'choice'},
+  {id:'unpack_presentation', type:'stars'},
+  {id:'unpack_docs', type:'choice'},
+  {id:'finish_quality', type:'stars'},
+  {id:'finish_expectation', type:'choice'},
+  {id:'finish_craftsmanship', type:'choice'},
+  {id:'overall_rating', type:'stars'},
+  {id:'repurchase', type:'choice'},
+  {id:'recommend', type:'choice'},
+];
+
+const STAR_PATH = "M12 2.5l2.9 6.06 6.6.87-4.85 4.6 1.24 6.6L12 17.6l-5.89 3.03 1.24-6.6-4.85-4.6 6.6-.87z";
+
+function starSVG(){
+  return `<svg viewBox="0 0 24 24"><path d="${STAR_PATH}"/></svg>`;
+}
+
+const RECIPIENT_EMAIL = 'abdelrahman2006541@miuegypt.edu.eg';
+const answers = {};
+
+// build star widgets
+document.querySelectorAll('[data-stars]').forEach(container=>{
+  const q = container.closest('.q');
+  const qid = q.getAttribute('data-q');
+  const big = container.getAttribute('data-big');
+  for(let i=1;i<=5;i++){
+    const btn = document.createElement('button');
+    btn.className='star';
+    btn.type='button';
+    btn.setAttribute('aria-label', i + ' star' + (i>1?'s':''));
+    btn.innerHTML = starSVG();
+    if(big){ btn.style.width='42px'; btn.style.height='42px'; btn.querySelector('svg').style.width='36px'; btn.querySelector('svg').style.height='36px'; }
+    btn.addEventListener('click', ()=>{
+      answers[qid]=i;
+      [...container.children].forEach((s,idx)=>{
+        s.classList.toggle('filled', idx < i);
+      });
+      updateProgress();
+    });
+    container.appendChild(btn);
+  }
+});
+
+// wire choice pills
+document.querySelectorAll('.q[data-q]').forEach(q=>{
+  const qid = q.getAttribute('data-q');
+  const opts = q.querySelectorAll('.opt');
+  opts.forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      answers[qid] = opt.getAttribute('data-v');
+      opts.forEach(o=>o.classList.remove('selected'));
+      opt.classList.add('selected');
+      updateProgress();
+    });
+  });
+});
+
+const submitBtn = document.getElementById('submitBtn');
+const hintText = document.getElementById('hintText');
+const threadFill = document.getElementById('threadFill');
+
+function updateProgress(){
+  const answeredCount = QUESTIONS.filter(q=>answers[q.id]!==undefined).length;
+  const total = QUESTIONS.length;
+  threadFill.style.width = (answeredCount/total*100)+'%';
+  hintText.textContent = answeredCount + ' of ' + total + ' answered';
+  submitBtn.disabled = answeredCount < total;
+}
+updateProgress();
+
+submitBtn.addEventListener('click', async ()=>{
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting…';
+  const body = {
+    _subject: 'NO FORM — new client feedback',
+    _template: 'table',
+    _captcha: 'false',
+    submittedAt: new Date().toISOString(),
+    ...answers
+  };
+  try{
+    const res = await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(RECIPIENT_EMAIL), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json().catch(()=>({}));
+    if(!res.ok || data.success === 'false') throw new Error(data.message || 'Send failed');
+  }catch(e){
+    console.error('Submit error', e);
+    submitBtn.textContent = 'Submit feedback';
+    submitBtn.disabled = false;
+    hintText.textContent = 'Could not send. Check your connection and try again.';
+    return;
+  }
+  document.getElementById('overlay').classList.add('show');
+});
+
+const founderLink = document.getElementById('founderLink');
+const founderPanel = document.getElementById('founderPanel');
+const respList = document.getElementById('respList');
+
+founderLink.addEventListener('click', (e)=>{
+  e.preventDefault();
+  founderPanel.classList.toggle('show');
+  respList.innerHTML = 'Each submission is emailed to <b>' + RECIPIENT_EMAIL + '</b>. Confirm the first FormSubmit message in that inbox so later answers arrive automatically.';
+});
+</script>
+
+</body>
+</html>
